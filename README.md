@@ -3,7 +3,7 @@ SimpleXMLWriter is one C++ File header which uses operators to build xml.
 
 ## Usage
 ```cpp
- CXMLWriter m_XMLWriter;
+CXMLWriter m_XMLWriter;
 
 CXMLWriterNode& m_XMLNode = m_XMLWriter["xml"];
 m_XMLNode["Key0"]("Index", "0")("Size", "test");

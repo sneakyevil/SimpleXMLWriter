@@ -12,9 +12,29 @@ public:
     std::map<std::string, CXMLWriterNode> Nodes;
     std::map<std::string, std::string> Attributes;
 
+    void RemoveIllegalChars(std::string& m_String)
+    {
+        std::map<char, std::string> m_CharsMap = { {'<', "&lt;" }, {'>', "&gt;" }, {'&', "&amp;" }, {'\'', "&apos;" }, {'\"', "&quot;" } };
+
+        size_t m_Pos = 0;
+        while (m_String.size() > m_Pos) 
+        {
+            auto m_Itter = m_CharsMap.find(m_String[m_Pos]);
+            if (m_Itter != m_CharsMap.end())
+            {
+                m_String.replace(m_Pos, 1, m_Itter->second);
+                m_Pos += m_Itter->second.size();
+            }
+            else
+               ++m_Pos;
+        }
+
+    }
+
     CXMLWriterNode& operator=(const char* m_Value)
     {
         Value = m_Value;
+        RemoveIllegalChars(Value);
         return *this;
     }
 
@@ -30,6 +50,7 @@ public:
     CXMLWriterNode& operator()(const char* m_AttributeKey, const char* m_AttributeValue)
     {
         Attributes[m_AttributeKey] = m_AttributeValue;
+        RemoveIllegalChars(Attributes[m_AttributeKey]);
         return *this;
     }
 

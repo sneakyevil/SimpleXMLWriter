@@ -14,7 +14,7 @@ public:
 
     void RemoveIllegalChars(std::string& m_String)
     {
-        std::map<char, std::string> m_CharsMap = { {'<', "&lt;" }, {'>', "&gt;" }, {'&', "&amp;" }, {'\'', "&apos;" }, {'\"', "&quot;" } };
+        static std::map<char, std::string> m_CharsMap = { { '<', "&lt;" }, { '>', "&gt;" }, { '&', "&amp;" }, { '\'', "&apos;" }, { '\"', "&quot;" } };
 
         size_t m_Pos = 0;
         while (m_String.size() > m_Pos) 
@@ -28,7 +28,6 @@ public:
             else
                ++m_Pos;
         }
-
     }
 
     CXMLWriterNode& operator=(const char* m_Value)
@@ -54,9 +53,18 @@ public:
         return *this;
     }
 
+    std::string GetKey()
+    {
+        size_t m_HashTag = Key.find_first_of("##");
+        if (m_HashTag == std::string::npos)
+            return Key;
+
+        return Key.substr(0, m_HashTag);
+    }
+
     std::string GetOpenTag()
     {
-        std::string m_String = "<" + Key;
+        std::string m_String = "<" + GetKey();
 
         for (auto& m_Attribute : Attributes)
             m_String += " " + m_Attribute.first + "=\"" + m_Attribute.second + "\"";
@@ -64,7 +72,7 @@ public:
         return (m_String + ">");
     }
 
-    std::string GetCloseTag() { return ("</" + Key + ">");  }
+    std::string GetCloseTag() { return ("</" + GetKey() + ">");  }
 };
 
 class CXMLWriter

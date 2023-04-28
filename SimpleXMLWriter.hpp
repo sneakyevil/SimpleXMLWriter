@@ -1,5 +1,6 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include <iostream>
+#include <unordered_map>
 #include <map>
 
 class CXMLWriterNode
@@ -10,11 +11,11 @@ public:
     int Depth = 0;
 
     std::map<std::string, CXMLWriterNode> Nodes;
-    std::map<std::string, std::string> Attributes;
+    std::unordered_map<std::string, std::string> Attributes;
 
     void RemoveIllegalChars(std::string& m_String)
     {
-        static std::map<char, std::string> m_CharsMap = { { '<', "&lt;" }, { '>', "&gt;" }, { '&', "&amp;" }, { '\'', "&apos;" }, { '\"', "&quot;" } };
+        static std::unordered_map<char, std::string> m_CharsMap = { { '<', "&lt;" }, { '>', "&gt;" }, { '&', "&amp;" }, { '\'', "&apos;" }, { '\"', "&quot;" } };
 
         size_t m_Pos = 0;
         while (m_String.size() > m_Pos) 
@@ -94,16 +95,27 @@ public:
 
             std::string m_Tabs(m_NextNode.Depth - 1, '\t');
 
+            std::string m_OpenTag = m_NextNode.GetOpenTag();
+            std::string m_CloseTag = m_NextNode.GetCloseTag();
+
             if (m_NextNode.Nodes.empty())
-                m_String += m_Tabs + m_NextNode.GetOpenTag() + m_NextNode.Value + m_NextNode.GetCloseTag() +"\n";
+            {
+                if (m_NextNode.Value.empty())
+                {
+                    m_OpenTag.pop_back();
+                    m_String += m_Tabs + m_OpenTag + "/>\n";
+                }
+                else
+                    m_String += m_Tabs + m_OpenTag + m_NextNode.Value + m_CloseTag + "\n";
+            }
             else
             {
-                m_String += m_Tabs + m_NextNode.GetOpenTag() + "\n";
+                m_String += m_Tabs + m_OpenTag + "\n";
                 if (!m_NextNode.Value.empty())
                     m_String += m_Tabs + "\t" + m_NextNode.Value + "\n";
 
                 BuildString(m_String, m_NextNode);
-                m_String += m_Tabs + m_NextNode.GetCloseTag() + "\n";
+                m_String += m_Tabs + m_CloseTag + "\n";
             }
         }
     }
